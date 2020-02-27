@@ -1,0 +1,20 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: springboot-dubbo-provider
+  rabbitmq:
+    addresses: localhost:5672
+    username: guest
+    password: guest
+    #消息发送确认回调
+    publisher-confirms: true
+    #发送返回监听回调
+    publisher-returns: true
+    cache:
+      connection:
+        # 缓存连接模式,默认一个连接,多个channel
+        mode: channel
+        # 多个连接,多个channel
+#        mode: connection
