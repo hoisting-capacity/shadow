@@ -1,4 +1,4 @@
-package com.shadow.trap.config;
+package com.shadow.correct.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.*;
@@ -15,13 +15,11 @@ import reactor.util.function.Tuple3;
 import reactor.util.function.Tuple5;
 import reactor.util.function.Tuples;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.shadow.trap.Constants.*;
+import static com.shadow.correct.Constants.*;
 
 /**
  * @author guoda
@@ -40,7 +38,40 @@ public class RabbitConfig {
         return new Jackson2JsonMessageConverter();
     }
 
-    private List<FluxSink<Tuple3<CorrelationData, Boolean, String>>> callbackSinks = new ArrayList<>();
+    private Set<FluxSink<Tuple3<CorrelationData, Boolean, String>>> callbackSinks = new CopyOnWriteArraySet<>();
+    private Set<FluxSink<Tuple5<Message, Integer, String, String, String>>> returnSinks = new CopyOnWriteArraySet<>();
+
+    /**
+     * 设置发送确认回调消息发布者
+     *
+     * @return 发送确认信息发布者引用
+     */
+    @Bean
+    public Flux<Tuple3<CorrelationData, Boolean, String>> callbackHandler() {
+        return Flux.using(AtomicReference::new,
+                reference -> Flux.create(tuple3FluxSink -> {
+                    reference.set(tuple3FluxSink);
+                    callbackSinks.add(tuple3FluxSink);
+                }),
+                reference -> callbackSinks.remove(reference.get())
+        );
+    }
+
+    /**
+     * 创建拒绝退回回调消息发布者
+     *
+     * @return 拒绝退回信息发布者引用
+     */
+    @Bean
+    public Flux<Tuple5<Message, Integer, String, String, String>> returnHandler() {
+        return Flux.using(AtomicReference::new,
+                reference -> Flux.create(tuple5FluxSink -> {
+                    reference.set(tuple5FluxSink);
+                    returnSinks.add(tuple5FluxSink);
+                }),
+                reference -> callbackSinks.remove(reference.get())
+        );
+    }
 
     /**
      * 为模板添加消息转换器
@@ -59,31 +90,11 @@ public class RabbitConfig {
             Tuple3<CorrelationData, Boolean, String> tuple3 = Tuples.of(correlationData, ack, cause);
             callbackSinks.forEach(sink -> sink.next(tuple3));
         });
-        return rabbitTemplate;
-    }
-
-    /**
-     * 设置发送确认回调消息发布者
-     *
-     * @return 发送确认信息发布者引用
-     */
-    @Bean
-    public Flux<Tuple3<CorrelationData, Boolean, String>> callbackHandler() {
-        return Flux.create(tuple3FluxSink -> callbackSinks.add(tuple3FluxSink));
-    }
-
-    /**
-     * 创建拒绝退回回调消息发布者
-     *
-     * @return 拒绝退回信息发布者引用
-     */
-    @Bean
-    @DependsOn("rabbitTemplate")
-    public Flux<Tuple5<Message, Integer, String, String, String>> returnHandler(RabbitTemplate rabbitTemplate) {
-        return Flux.create(tuple5FluxSink -> rabbitTemplate.setReturnCallback((message, replyCode, replyText, exchange, routingKey) -> {
+        rabbitTemplate.setReturnCallback((message, replyCode, replyText, exchange, routingKey) -> {
             Tuple5<Message, Integer, String, String, String> tuple5 = Tuples.of(message, replyCode, replyText, exchange, routingKey);
-            tuple5FluxSink.next(tuple5);
-        }));
+            returnSinks.forEach(sink -> sink.next(tuple5));
+        });
+        return rabbitTemplate;
     }
 
     /**
