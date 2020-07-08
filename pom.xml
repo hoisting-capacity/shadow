@@ -24,7 +24,7 @@
     <properties>
         <reactor-codec.version>0.5.0.RELEASE</reactor-codec.version>
         <reactor-core.version>3.2.10.RELEASE</reactor-core.version>
-        <reactor-netty.version>0.8.9.RELEASE</reactor-netty.version>
+        <reactor-netty.version>0.8.12.RELEASE</reactor-netty.version>
         <jackson-databind.version>2.9.6</jackson-databind.version>
         <junit-jupiter-api.version>RELEASE</junit-jupiter-api.version>
         <lombok.version>1.18.4</lombok.version>
@@ -35,7 +35,7 @@
         <dubbo.version>2.6.3</dubbo.version>
         <curator-framework.version>4.0.1</curator-framework.version>
         <fastjson.version>1.2.47</fastjson.version>
-        <jackson.version>2.9.6</jackson.version>
+        <jackson.version>2.11.0</jackson.version>
     </properties>
 
     <dependencyManagement>
