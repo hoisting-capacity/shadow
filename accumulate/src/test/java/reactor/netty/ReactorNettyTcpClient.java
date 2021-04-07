@@ -2,10 +2,7 @@ package reactor.netty;
 
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
-import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
-import reactor.netty.Connection;
-import reactor.netty.NettyPipeline;
 import reactor.netty.resources.ConnectionProvider;
 import reactor.netty.resources.LoopResources;
 import reactor.netty.tcp.TcpClient;
@@ -20,8 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @date 2019-07-24
  */
 class ReactorNettyTcpClient {
-    @Test
-    void tcpClient() throws Exception {
+    public static void main(String[] args) throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
         // Config Event Loop Group with 1 selectCount、4 workerCount and daemon model。
         LoopResources loop = LoopResources.create("event-loop", 1, 4, true);
@@ -30,7 +26,7 @@ class ReactorNettyTcpClient {
         // Creates a TcpClient instance that is ready for configuring.
         Connection connection = TcpClient.create(provider)
                 .host("localhost")
-                .port(8004)
+                .port(8000)
                 // Enables the wire logging
                 .wiretap(true)
                 .runOn(loop)
