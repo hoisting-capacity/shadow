@@ -1,0 +1,7 @@
+<root>
+    <path>
+        <to>
+            <node>this is /root/path/to/node</node>
+        </to>
+    </path>
+</root>
