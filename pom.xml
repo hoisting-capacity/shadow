@@ -27,7 +27,7 @@
         <reactor-netty.version>0.8.12.RELEASE</reactor-netty.version>
         <lombok.version>1.18.24</lombok.version>
         <google-collections.version>1.0</google-collections.version>
-        <guava.version>31.1-jre</guava.version>
+        <guava.version>32.0.0-jre</guava.version>
         <kotlin.version>1.3.31</kotlin.version>
         <kotlinx-coroutines-core.version>1.3.0-M1</kotlinx-coroutines-core.version>
         <dubbo.version>2.6.12</dubbo.version>
